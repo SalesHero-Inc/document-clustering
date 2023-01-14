@@ -114,6 +114,8 @@ def get_top_samples(scores: pd.DataFrame, optimal_k_value: int) -> pd.DataFrame:
 
         # get top 8 samples
         scores_i = scores_i[:8]
+
+        # get cluster representation by using keyword extraction
         cluster_keywords_all = " ".join(scores_i["keyword_rep"].tolist())
         cluster_representation = get_keywords(cluster_keywords_all)
         scores_i["cluster_representation"] = cluster_representation

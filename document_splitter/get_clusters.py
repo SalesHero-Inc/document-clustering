@@ -34,7 +34,7 @@ class ClusterDetection:
         Returns:
             top_cluster_samples (pd.Dataframe): dataframe containing clustered data
         """
-        data_df = create_dataframe(documents, data_distinction_type)
+        data_df = create_dataframe(documents)
         log.info("Dataframe created\n")
 
         optimal_k_value, best_cluster_model, embedder_model = get_elbow_point(

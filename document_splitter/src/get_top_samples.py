@@ -33,7 +33,7 @@ def create_dataframe(documents: List) -> pd.DataFrame:
 
     data_df = pd.DataFrame(
         columns=[
-            ColumnNames.IMAGE.value,
+            ColumnNames.IMAGE_NAME.value,
             ColumnNames.FULL_TEXT.value,
             ColumnNames.KEYWORD_REPRESENTATION.value,
         ]
@@ -80,8 +80,8 @@ def get_all_scores(
 
     # check data type
     assert data_distinction_type in [
-        DataType.TEXT,
-        DataType.IMAGE,
+        DataType.TEXT.value,
+        DataType.IMAGE.value,
     ], f"Received unsupported type: {data_distinction_type}"
 
     scores = pd.DataFrame(columns=data_df.columns.tolist())
@@ -89,8 +89,8 @@ def get_all_scores(
         scores.at[i, ColumnNames.IMAGE_NAME.value] = data_df.at[i, ColumnNames.IMAGE_NAME.value]
 
         # document encoding depends on whether data_distinction_type is image or text.
-        if data_distinction_type == DataType.IMAGE:
-            xtest = embedder_model.encode(Image.open(data_df.at[i, ColumnNames.IMAGE_NAME]))
+        if data_distinction_type == DataType.IMAGE.value:
+            xtest = embedder_model.encode(Image.open(data_df.at[i, ColumnNames.IMAGE_NAME.value]))
         else:
             xtest = embedder_model.encode(data_df.at[i, ColumnNames.FULL_TEXT.value])
         scores.at[i, ColumnNames.FULL_TEXT.value] = data_df.at[i, ColumnNames.FULL_TEXT.value]

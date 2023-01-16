@@ -74,11 +74,11 @@ def get_elbow_point(data_df: pd.DataFrame, data_distinction_type: DataType):
 
     # type of encoding depends on data_distinction_type
     if data_distinction_type == DataType.TEXT.value:  # encode textual features
-        data = data_df[ColumnNames.TEXT.value].tolist()
+        data = data_df[ColumnNames.FULL_TEXT.value].tolist()
         embedder_model = SentenceTransformer(EncoderModel.TEXT.value)
 
     elif data_distinction_type == DataType.IMAGE.value:  # encode visual features
-        data = data_df[ColumnNames.IMAGE.value].tolist()
+        data = data_df[ColumnNames.IMAGE_NAME.value].tolist()
         data = [Image.open(item) for item in data]
         embedder_model = SentenceTransformer(EncoderModel.IMAGE.value)
     else:

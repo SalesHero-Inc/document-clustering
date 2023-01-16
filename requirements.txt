@@ -4,5 +4,5 @@ Pillow==9.2.0
 scikit-learn==1.0.2
 keybert==0.7.0
 sentence-transformers==2.2.2
-packages/ah_sidekick-0.8.7-py3-none-any.whl
-packages/ah_sidekick-0.8.7-py3-none-any.whl[paddle]
+packages/ah_sidekick-0.9.1-py3-none-any.whl
+packages/ah_sidekick-0.9.1-py3-none-any.whl[paddle]

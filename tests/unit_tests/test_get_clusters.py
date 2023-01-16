@@ -21,7 +21,7 @@ class TestClusterDetection(unittest.TestCase):
         This function is to test cluster extraction function
         """
 
-        clusters = ClusterDetection().get_clustered_data(documents, "image")
+        clusters = ClusterDetection().get_clustered_data(documents, "text")
         assert (
             len(clusters) > 16
         ), f"Failed. Was not able to extract correct keyword representation. Received {clusters}"

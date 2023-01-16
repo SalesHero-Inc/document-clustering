@@ -54,7 +54,6 @@ class ClusterDetection:
         log.info("Distance for all data points from cluster centroid extracted\n")
 
         top_cluster_samples = get_top_samples(all_scores, optimal_k_value)
-        log.info("Most representative samples detected\n")
-        print(top_cluster_samples)
+        log.info(f"Most representative samples detected - {top_cluster_samples}\n")
 
         return top_cluster_samples

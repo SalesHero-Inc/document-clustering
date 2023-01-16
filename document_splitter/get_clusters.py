@@ -10,6 +10,7 @@ from document_splitter.src.get_top_samples import (
     get_all_scores,
     get_top_samples,
 )
+from document_splitter.enumerators import DataType
 
 log = logging.getLogger("Log Cluster Detection")
 
@@ -22,9 +23,7 @@ class ClusterDetection:
     def __init__(self, *args, **kwargs) -> None:
         super(ClusterDetection, self).__init__(*args, **kwargs)
 
-    def get_clustered_data(
-        self, documents: List, data_distinction_type="text"
-    ) -> pd.DataFrame:
+    def get_clustered_data(self, documents: List, data_distinction_type=DataType) -> pd.DataFrame:
         """
         Function to detect MRZ from image
         Args:
@@ -34,6 +33,13 @@ class ClusterDetection:
         Returns:
             top_cluster_samples (pd.Dataframe): dataframe containing clustered data
         """
+
+        # check data type validity
+        assert data_distinction_type in [
+            DataType.IMAGE.value,
+            DataType.TEXT.value,
+        ], f"Received unsupported type: {data_distinction_type}"
+
         data_df = create_dataframe(documents)
         log.info("Dataframe created\n")
 
@@ -49,6 +55,6 @@ class ClusterDetection:
 
         top_cluster_samples = get_top_samples(all_scores, optimal_k_value)
         log.info("Most representative samples detected\n")
-        print (top_cluster_samples)
-        
+        print(top_cluster_samples)
+
         return top_cluster_samples

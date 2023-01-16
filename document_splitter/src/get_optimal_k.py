@@ -8,6 +8,7 @@ import pandas as pd
 from PIL import Image
 from sklearn.cluster import KMeans
 from keybert import KeyBERT
+from document_splitter.enumerators import DataType, ColumnNames, EncoderModel
 from sentence_transformers import SentenceTransformer
 
 KEYWORD_EXTRACTION_MODEL = KeyBERT()
@@ -54,7 +55,7 @@ def get_slope(x_list: List, y_list: List) -> Dict:
     return slope_dict
 
 
-def get_elbow_point(data_df: pd.DataFrame, data_distinction_type: str):
+def get_elbow_point(data_df: pd.DataFrame, data_distinction_type: DataType):
     """
     Function to get elbow point of sample space by calculating
     second derivative of within cluster sum of squared distance
@@ -72,15 +73,16 @@ def get_elbow_point(data_df: pd.DataFrame, data_distinction_type: str):
     wcss = {}
 
     # type of encoding depends on data_distinction_type
-    if data_distinction_type == "text":
-        data = data_df["full_text"].tolist()
-        embedder_model = SentenceTransformer(
-            "sentence-transformers/distilroberta-base-msmarco-v2"
-        )
-    else:
-        data = data_df["image_name"].tolist()
+    if data_distinction_type == DataType.TEXT.value:  # encode textual features
+        data = data_df[ColumnNames.TEXT.value].tolist()
+        embedder_model = SentenceTransformer(EncoderModel.TEXT.value)
+
+    elif data_distinction_type == DataType.IMAGE.value:  # encode visual features
+        data = data_df[ColumnNames.IMAGE.value].tolist()
         data = [Image.open(item) for item in data]
-        embedder_model = SentenceTransformer("sentence-transformers/clip-ViT-B-32")
+        embedder_model = SentenceTransformer(EncoderModel.IMAGE.value)
+    else:
+        raise NotImplementedError(f"Type: {data_distinction_type} is not supported")
 
     embedded_data = embedder_model.encode(data)
 
@@ -98,9 +100,7 @@ def get_elbow_point(data_df: pd.DataFrame, data_distinction_type: str):
 
     # get second derivative to find elbow point
     first_derivative = get_slope(list(wcss.keys()), list(wcss.values()))
-    second_derivative = get_slope(
-        list(first_derivative.keys()), list(first_derivative.values())
-    )
+    second_derivative = get_slope(list(first_derivative.keys()), list(first_derivative.values()))
 
     # elbow point is largest negative slope
     sorted_scores = dict(sorted(second_derivative.items(), key=lambda item: item[1]))

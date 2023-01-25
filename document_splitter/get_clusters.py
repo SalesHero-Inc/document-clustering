@@ -23,13 +23,14 @@ class ClusterDetection:
     def __init__(self, *args, **kwargs) -> None:
         super(ClusterDetection, self).__init__(*args, **kwargs)
 
-    def get_clustered_data(self, documents: List, data_distinction_type=DataType) -> pd.DataFrame:
+    def get_clustered_data(self, documents: List, data_distinction_type=DataType, n_samples=8) -> pd.DataFrame:
         """
         Function to detect MRZ from image
         Args:
             documents (List): list of documents
             data_distinction_type (str): type of feature (text or image)
             based on which the images can be distinguished
+            n_samples (int): number of samples from each cluster
         Returns:
             top_cluster_samples (pd.Dataframe): dataframe containing clustered data
         """
@@ -53,7 +54,7 @@ class ClusterDetection:
         )
         log.info("Distance for all data points from cluster centroid extracted\n")
 
-        top_cluster_samples = get_top_samples(all_scores, optimal_k_value)
+        top_cluster_samples = get_top_samples(all_scores, optimal_k_value, n_samples)
         log.info(f"Most representative samples detected - {top_cluster_samples}\n")
 
         return top_cluster_samples

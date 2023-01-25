@@ -22,7 +22,9 @@ class ColumnNames(Enum):
 
     FULL_TEXT = "full_text"
     IMAGE_NAME = "image_name"
+    PAGE_NUM = "page_num"
     KEYWORD_REPRESENTATION = "keyword_rep"
     CLUSTER_REPRESENTATION = "cluster_representation"
     CLUSTER = "cluster"
     SCORE = "score"
+    WITHIN_CLUSTER_INDEX = "within_cluster_index"

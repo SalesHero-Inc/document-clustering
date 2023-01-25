@@ -34,6 +34,7 @@ def create_dataframe(documents: List) -> pd.DataFrame:
     data_df = pd.DataFrame(
         columns=[
             ColumnNames.IMAGE_NAME.value,
+             ColumnNames.PAGE_NUM.value,
             ColumnNames.FULL_TEXT.value,
             ColumnNames.KEYWORD_REPRESENTATION.value,
         ]
@@ -54,6 +55,7 @@ def create_dataframe(documents: List) -> pd.DataFrame:
 
         data_df.at[df_index, ColumnNames.KEYWORD_REPRESENTATION.value] = page_keywords
         data_df.at[df_index, ColumnNames.FULL_TEXT.value] = full_text
+        data_df.at[df_index, ColumnNames.PAGE_NUM.value] = df_index + 1
 
     return data_df
 
@@ -87,6 +89,7 @@ def get_all_scores(
     scores = pd.DataFrame(columns=data_df.columns.tolist())
     for i in range(0, len(data_df)):
         scores.at[i, ColumnNames.IMAGE_NAME.value] = data_df.at[i, ColumnNames.IMAGE_NAME.value]
+        scores.at[i, ColumnNames.PAGE_NUM.value] = data_df.at[i, ColumnNames.PAGE_NUM.value]
 
         # document encoding depends on whether data_distinction_type is image or text.
         if data_distinction_type == DataType.IMAGE.value:
@@ -112,15 +115,16 @@ def get_all_scores(
     return scores
 
 
-def get_top_samples(scores: pd.DataFrame, optimal_k_value: int) -> pd.DataFrame:
+def get_top_samples(scores: pd.DataFrame, optimal_k_value: int, n_samples: int) -> pd.DataFrame:
     """
     Function to get most represenative samples of each cluster by
     getting least distant points of each cluster from their centroid.
     Args:
         scores (pd.DataFrame): cluster distance scores for all samples
         optimal_k_value (int): optimal K value
+        n_samples (int): number of samples from each cluster
     Returns:
-        top_samples (pd.DataFrame): top 8 samples from each cluster
+        top_samples (pd.DataFrame): top n samples from each cluster
     """
     top_samples = pd.DataFrame(
         columns=scores.columns.tolist().extend([ColumnNames.CLUSTER_REPRESENTATION.value])
@@ -130,13 +134,14 @@ def get_top_samples(scores: pd.DataFrame, optimal_k_value: int) -> pd.DataFrame:
         scores_i = scores[scores[ColumnNames.CLUSTER.value].isin([i])]
         scores_i = scores_i.sort_values(by=[ColumnNames.SCORE.value])
 
-        # get top 8 samples
-        scores_i = scores_i[:8]
+        # get top n samples
+        scores_i = scores_i[:n_samples]
 
         # get cluster representation by using keyword extraction
         cluster_keywords_all = " ".join(scores_i[ColumnNames.KEYWORD_REPRESENTATION.value].tolist())
         cluster_representation = get_keywords(cluster_keywords_all)
         scores_i[ColumnNames.CLUSTER_REPRESENTATION.value] = cluster_representation
+        scores_i[ColumnNames.WITHIN_CLUSTER_INDEX.value] = list(np.arange(1,len(scores_i)+1))
 
         top_samples = pd.concat([top_samples, scores_i], axis=0)
 

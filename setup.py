@@ -28,7 +28,7 @@ EXTRAS_DEPENDENCIES["all"] = list(set(sum(EXTRAS_DEPENDENCIES.values(), [])))
 
 setup(
     name="ah_document_cluster_extractor",
-    version="0.0.1",
+    version="0.0.2",
     author="Priyam Basu",
     author_email="priyam.basu@automationhero.ai",
     packages=find_packages(),

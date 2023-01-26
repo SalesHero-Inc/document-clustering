@@ -4,6 +4,7 @@ This script contains the functions to get keyword representations and elbow poin
 from typing import List, Dict
 import logging
 import math
+import numpy as np
 import pandas as pd
 from PIL import Image
 from sklearn.cluster import KMeans
@@ -29,6 +30,68 @@ def get_keywords(text: str) -> str:
     log.info(f"Keyword representation is - {keyword_representation} \n")
 
     return keyword_representation
+
+
+def get_embedder_model_x_data(data_df: pd.DataFrame, data_distinction_type: str):
+    """
+    Function to get embedder model and entire data embedding based on data distinction type
+    Args:
+        data_df (pd.DataFrame): dataframe containing the files
+        data_distinction_type (str): type of data
+    Returns:
+        embedder_model: fitted cluster model
+        embedded_data (np.array): embedded whole data
+    """
+    if data_distinction_type == DataType.TEXT.value:  # encode textual features
+        data = data_df[ColumnNames.FULL_TEXT.value].tolist()
+        embedder_model = SentenceTransformer(EncoderModel.TEXT.value)
+
+    elif data_distinction_type == DataType.IMAGE.value:  # encode visual features
+        data = data_df[ColumnNames.IMAGE_NAME.value].tolist()
+        data = [Image.open(item) for item in data]
+        embedder_model = SentenceTransformer(EncoderModel.IMAGE.value)
+    else:
+        raise NotImplementedError(f"Type: {data_distinction_type} is not supported")
+    embedded_data = embedder_model.encode(data)
+
+    return embedder_model, embedded_data
+
+
+def get_cluster_model(embedded_data: np.array, k_value: int):
+    """
+    Function to cluster data and get fitted model
+    Args:
+        embedded_data (np.array): embedded data to be clustered
+        k_value (int): number of clusters
+    Returns:
+        cluster_model: fitted cluster model
+    """
+    cluster_model = KMeans(n_clusters=k_value)
+    cluster_model.fit(embedded_data)
+
+    return cluster_model
+
+
+def get_custom_cluster_model(
+    data_df: pd.DataFrame, data_distinction_type: str, k_value: int
+):
+    """
+    Function to cluster data with custom k value and get fitted model
+    Args:
+        data_df (pd.DataFrame): data to be clustered
+        data_distinction_type (str): type of data to cluster by
+        k_value (int): custom k value to cluster by
+    Returns:
+        k_value (int): custom k value to cluster by
+        cluster_model: fitted clustering model
+        embedder_model: embedder model
+    """
+    embedder_model, embedded_data = get_embedder_model_x_data(
+        data_df, data_distinction_type
+    )
+    cluster_model = get_cluster_model(embedded_data, k_value)
+
+    return k_value, cluster_model, embedder_model
 
 
 def get_slope(x_list: List, y_list: List) -> Dict:
@@ -73,41 +136,32 @@ def get_elbow_point(data_df: pd.DataFrame, data_distinction_type: DataType):
     wcss = {}
 
     # type of encoding depends on data_distinction_type
-    if data_distinction_type == DataType.TEXT.value:  # encode textual features
-        data = data_df[ColumnNames.FULL_TEXT.value].tolist()
-        embedder_model = SentenceTransformer(EncoderModel.TEXT.value)
-
-    elif data_distinction_type == DataType.IMAGE.value:  # encode visual features
-        data = data_df[ColumnNames.IMAGE_NAME.value].tolist()
-        data = [Image.open(item) for item in data]
-        embedder_model = SentenceTransformer(EncoderModel.IMAGE.value)
-    else:
-        raise NotImplementedError(f"Type: {data_distinction_type} is not supported")
-
-    embedded_data = embedder_model.encode(data)
+    embedder_model, embedded_data = get_embedder_model_x_data(
+        data_df, data_distinction_type
+    )
 
     # upper limit of k is decided as 50 or square root of
     # number of documents, whichever is smallest
-    k_limit = int(math.sqrt(len(data))) + 1
+    k_limit = int(math.sqrt(len(embedded_data))) + 1
     k_limit = min(k_limit, 50)
     log.info(f"k-limit is {k_limit} \n")
 
     # calculate wcss scores for different k values
     for k in range(2, k_limit):
-        cluster_model = KMeans(n_clusters=k)
-        cluster_model.fit(embedded_data)
+        cluster_model = get_cluster_model(embedded_data, k)
         wcss[k] = cluster_model.inertia_
 
     # get second derivative to find elbow point
     first_derivative = get_slope(list(wcss.keys()), list(wcss.values()))
-    second_derivative = get_slope(list(first_derivative.keys()), list(first_derivative.values()))
+    second_derivative = get_slope(
+        list(first_derivative.keys()), list(first_derivative.values())
+    )
 
     # elbow point is largest negative slope
     sorted_scores = dict(sorted(second_derivative.items(), key=lambda item: item[1]))
     optimal_k_value = next(iter(sorted_scores))
     log.info(f"Optimal k value is {optimal_k_value} \n")
 
-    best_cluster_model = KMeans(n_clusters=optimal_k_value)
-    best_cluster_model.fit(embedded_data)
+    best_cluster_model = get_cluster_model(embedded_data, optimal_k_value)
 
     return optimal_k_value, best_cluster_model, embedder_model

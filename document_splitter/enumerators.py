@@ -15,6 +15,8 @@ class DataType(Enum):
 
     TEXT = "text"
     IMAGE = "image"
+    DEFAULT_N_SAMPLES = 8
+    DEFAULT_CUSTOM_K_VALUE = 0
 
 
 class ColumnNames(Enum):

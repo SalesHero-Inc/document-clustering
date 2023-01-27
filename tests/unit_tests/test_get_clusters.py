@@ -22,6 +22,7 @@ class TestClusterDetection(unittest.TestCase):
         """
 
         clusters = ClusterDetection().get_clustered_data(documents, "text")
+        print (clusters)
         assert (
             len(clusters) > 16
         ), f"Failed. Was not able to extract correct keyword representation. Received {clusters}"

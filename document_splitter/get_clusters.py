@@ -13,7 +13,7 @@ from document_splitter.src.get_top_samples import (
     get_all_scores,
     get_top_samples,
 )
-from document_splitter.enumerators import DataType
+from document_splitter.enumerators import DataType, DefaultParams
 
 log = logging.getLogger("Log Cluster Detection")
 
@@ -30,8 +30,8 @@ class ClusterDetection:
         self,
         documents: List,
         data_distinction_type: str = DataType.TEXT.value,
-        n_samples: str = DataType.DEFAULT_N_SAMPLES.value,
-        custom_k_value: int = DataType.DEFAULT_CUSTOM_K_VALUE.value,
+        n_samples: str = DefaultParams.DEFAULT_N_SAMPLES.value,
+        custom_k_value: int = DefaultParams.DEFAULT_CUSTOM_K_VALUE.value,
     ) -> pd.DataFrame:
         """
         Function to detect MRZ from image
@@ -55,7 +55,7 @@ class ClusterDetection:
         log.info("Dataframe created\n")
 
         # if custom k value is not given, then we detect optimal k value using eblow plot else we use given k
-        if custom_k_value == DataType.DEFAULT_CUSTOM_K_VALUE.value:
+        if custom_k_value == DefaultParams.DEFAULT_CUSTOM_K_VALUE.value:
             optimal_k_value, best_cluster_model, embedder_model = get_elbow_point(
                 data_df, data_distinction_type
             )

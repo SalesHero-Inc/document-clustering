@@ -15,6 +15,11 @@ class DataType(Enum):
 
     TEXT = "text"
     IMAGE = "image"
+
+
+class DefaultParams(Enum):
+    """Enumerates default parameter values"""
+
     DEFAULT_N_SAMPLES = 8
     DEFAULT_CUSTOM_K_VALUE = 0
 

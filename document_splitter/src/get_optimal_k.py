@@ -66,7 +66,7 @@ def get_cluster_model(embedded_data: np.array, k_value: int):
     Returns:
         cluster_model: fitted cluster model
     """
-    cluster_model = KMeans(n_clusters=k_value)
+    cluster_model = KMeans(n_clusters=k_value, random_state=42)
     cluster_model.fit(embedded_data)
 
     return cluster_model

@@ -5,11 +5,12 @@ import random
 from os import listdir
 from os.path import isfile, join
 import unittest
+from sidekick.document.document import Document
 from document_splitter.get_clusters import ClusterDetection
 
-PATH_TO_FILES = "tests/resources"
-documents = [f"{PATH_TO_FILES}/{f}" for f in listdir(PATH_TO_FILES) if isfile(join(PATH_TO_FILES, f))][:100]
-random.shuffle(documents)
+PATH_TO_FILES = "tests/resources/RIMAC.pdf"
+documents = Document(PATH_TO_FILES).image_paths
+# random.shuffle(documents)
 
 class TestClusterDetection(unittest.TestCase):
     """
